@@ -47,6 +47,8 @@ Installation
 
 #. Add ``MULTIHOST_REDIRECT_URL`` to ``settings.py``
 
+#. Add ``multihost.middleware.MultiHostMiddleware`` to your ``MIDDLEWARE_CLASSES`` in at the end of the list.  If you find it isn't working, move it up the list order as there may be a middleware conflict.
+
 
 Advanced Settings
 ----------------------
