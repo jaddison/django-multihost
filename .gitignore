@@ -1,0 +1,6 @@
+*.pyc
+*.tmproj
+*.DS_Store
+dist
+NOTES
+MANIFEST
