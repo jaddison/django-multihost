@@ -6,7 +6,7 @@ def read(fname):
 
 from distutils.core import setup
 setup(
-    name = 'multihost',
+    name = 'django-multihost',
     description = 'Simple multihost handling for Django',
     long_description=read('README.rst'),
     author='James Addison',
