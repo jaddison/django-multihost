@@ -43,9 +43,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 from django.db.models.loading import app_cache_ready
 from django.core.cache import cache
-import multihost
-
-_WARNED = {}
+from multihost import get_current_request
 
 def by_host(host=None, id_only=False, recursion=False):
     """Get the current site by looking at the request stored in the thread.
@@ -58,84 +56,60 @@ def by_host(host=None, id_only=False, recursion=False):
      - `id_only`: if true, then do not retrieve the full site, just the id.
      - `recursion`: used to prevent an endless loop of calling this function
     """
-    global _WARNED
-    if id_only:
-        site = -1
-    else:
-        site = None
+    site = None
 
+    # if the host value wasn't passed in, take a look inside the request for data
     if not host:
-        request = multihost.get_current_request()
+        request = get_current_request()
         if request:
             # if the request object already has the site set, just return it now
-            # and skip the intensive lookup - unnecessary!
+            # and skip the intensive lookup - it's unnecessary!
             if hasattr(request, 'site'):
-                site = id_only and request.site.id or request.site
+                # if the request.site value isn't of type Site, just return it, as the
+                # developer using this app is doing something funky
+                if not isinstance(request.site, Site):
+                    return request.site
+                
+                # otherwise, just return the id or site depending on what was requested
+                return id_only and request.site.id or request.site
             else:
                 host = request.get_host()
-        else:
-            site = by_settings(id_only=id_only)
 
     if host:
         if app_cache_ready():
             key = 'SITE%s' % (host,)
+
+            # try to get the Site out of Django's cache
             site = cache.get(key)
             if not site:
                 try:
                     site = Site.objects.get(domain=host)
                 except Site.DoesNotExist:
+                    # if the Site couldn't be found, strip the port off if it
+                    # exists and try again
                     if host.find(":") > -1:
                         try:
                             # strip the port
-                            host = host.split(":")[0]
-                            site = Site.objects.get(domain=host)
+                            tmp = host.split(":")[0]
+                            site = Site.objects.get(domain=tmp)
                         except Site.DoesNotExist:
                             pass
 
+                # if the Site still hasn't been found, add or remove the 'www.'
+                # from the host and try with that.
                 if not recursion and not site and getattr(settings, 'MULTIHOST_AUTO_WWW', True):
                     if host.startswith('www.'):
                         site = by_host(host=host[4:], id_only=id_only, recursion=True)
                     else:
                         site = by_host(host = 'www.%s' % host, id_only=id_only, recursion=True)
-                    print site
 
+                # if we finally have the Site, save it in the cache to prevent
+                # the intensive lookup again!
                 if site:
                     cache.set(key, site)
 
-
-            if site:
-                if id_only:
-                    site = site.id
-            else:
-                if not host in _WARNED:
-                    _WARNED[host] = True
-
-                site = by_settings(id_only=id_only)
-
-        else:
-            site = by_settings(id_only=id_only)
-
-    return site
-
-def by_settings(id_only=False):
-    """Get the site according to the SITE_ID in settings.
-
-    Params:
-     - `id_only`: if true, then only the id is returned.
-    """
-    global _WARNED
-    if id_only:
-        return settings.SITE_ID
-
-    try:
-        return Site.objects.get(pk=settings.SITE_ID)
-    except Exception, e:
-        message = e.args[0]
-        if message.find("django_site") > 0:
-            site = None
-            if not 'django_site' in _WARNED:
-                _WARNED['django_site'] = True
-        else:
-            raise
+            # was it an ID-only request? if so return the site ID only!
+            if site and id_only:
+                site = site.id
 
     return site

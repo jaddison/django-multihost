@@ -24,12 +24,6 @@ Requirements
 - Django 1.2.x (May work with 1.0+, but untested - please report)
 
 
-Notes
------
-
-- This app has been built to be modular so that developers can easily replace middleware functionality through specific settings.py changes.  See below for more information.
-
-
 Installation
 ------------
 
@@ -57,8 +51,6 @@ There are 4 settings that developers can use to override default functionality:
 
 - ``MULTIHOST_REDIRECT_URL``: **required**; no default.  The default middleware request processing will redirect to this URL in the case of Site lookup failure.
 - ``MULTIHOST_AUTO_WWW``: optional; defaults to True.  If the Site can't be found that matches the incoming Host header exactly, this will automatically try removing/adding ``www.`` and searching again.
-- ``MULTIHOST_FUNC_INIT``: optional.  The default function overrides SiteManager.get_current() with a multihost-aware version.
-- ``MULTIHOST_FUNC_PROCESSREQUEST``: optional.  The default function sets the request into ``threadlocal`` storage and then attempts to look up the Site matching the ``Host`` header.
 
 
 Source

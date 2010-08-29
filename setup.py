@@ -12,7 +12,7 @@ setup(
     author='James Addison',
     author_email='code@scottisheyes.com',
     packages = ['multihost',],
-    version = '0.1',
+    version = '0.2',
     url='http://github.com/jaddison/django-multihost',
     keywords=[],
     license='BSD',
