@@ -53,6 +53,14 @@ There are 4 settings that developers can use to override default functionality:
 - ``MULTIHOST_AUTO_WWW``: optional; defaults to True.  If the Site can't be found that matches the incoming Host header exactly, this will automatically try removing/adding ``www.`` and searching again.
 
 
+Notes
+-----
+
+It is important to note that the MultiHostMiddleware middleware does database lookups against the Django tables corresponding to the `Site` model - in particular, against the `domain` field.  In the default Django implementation (version 1.2.1 as of writing), the `domain` field is not indexed or unique and this may result in slower performance over time.
+
+For this reason, web site/application developers should weigh the benefits and consider manually adding an index for the `Site` model's `domain` field using standard database access tools.
+
+
 Source
 ------
 
