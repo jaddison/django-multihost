@@ -47,7 +47,7 @@ Installation
 Advanced Settings
 ----------------------
 
-There are 4 settings that developers can use to override default functionality:
+There are 2 settings that developers can use to override default functionality:
 
 - ``MULTIHOST_REDIRECT_URL``: **required**; no default.  The default middleware request processing will redirect to this URL in the case of Site lookup failure.
 - ``MULTIHOST_AUTO_WWW``: optional; defaults to True.  If the Site can't be found that matches the incoming Host header exactly, this will automatically try removing/adding ``www.`` and searching again.
