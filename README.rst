@@ -43,6 +43,7 @@ Installation
 
 #. Add ``multihost.middleware.MultiHostMiddleware`` to your ``MIDDLEWARE_CLASSES`` in at the end of the list.  If you find it isn't working, move it up the list order as there may be a middleware conflict.
 
+Note: Django does strange things (like sending requests to the wrong urls handler) when it is used in conjunction with debug_toolbar.  To fix this problem, multihost must always be the last entry in MIDDLEWARE_CLASSES.
 
 Advanced Settings
 ----------------------
