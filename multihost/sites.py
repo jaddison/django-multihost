@@ -82,13 +82,13 @@ def by_host(host=None, id_only=False, recursion=False):
             # try to get the Site out of Django's cache
             site = cache.get(key)
             if not site:
-                site = lookup(site, host, recursion)
+                site = lookup(site, host, recursion, id_only)
                 # if we finally have the Site, save it in the cache to prevent
                 # the intensive lookup again!
                 if site:
                     cache.set(key, site)
         else:
-            site = lookup(site, host, recursion)
+            site = lookup(site, host, recursion, id_only)
 
         # was it an ID-only request? if so return the site ID only!
         if site and id_only:
@@ -96,7 +96,7 @@ def by_host(host=None, id_only=False, recursion=False):
 
     return site
 
-def lookup(site, host, recursion):
+def lookup(site, host, recursion, id_only):
     try:
         site = Site.objects.get(domain=host)
     except Site.DoesNotExist:
