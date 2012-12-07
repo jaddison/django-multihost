@@ -82,34 +82,39 @@ def by_host(host=None, id_only=False, recursion=False):
             # try to get the Site out of Django's cache
             site = cache.get(key)
             if not site:
-                try:
-                    site = Site.objects.get(domain=host)
-                except Site.DoesNotExist:
-                    # if the Site couldn't be found, strip the port off if it
-                    # exists and try again
-                    if host.find(":") > -1:
-                        try:
-                            # strip the port
-                            tmp = host.split(":")[0]
-                            site = Site.objects.get(domain=tmp)
-                        except Site.DoesNotExist:
-                            pass
-
-                # if the Site still hasn't been found, add or remove the 'www.'
-                # from the host and try with that.
-                if not recursion and not site and getattr(settings, 'MULTIHOST_AUTO_WWW', True):
-                    if host.startswith('www.'):
-                        site = by_host(host=host[4:], id_only=id_only, recursion=True)
-                    else:
-                        site = by_host(host = 'www.%s' % host, id_only=id_only, recursion=True)
-
+                site = lookup(site, host, recursion, id_only)
                 # if we finally have the Site, save it in the cache to prevent
                 # the intensive lookup again!
                 if site:
                     cache.set(key, site)
+        else:
+            site = lookup(site, host, recursion, id_only)
 
-            # was it an ID-only request? if so return the site ID only!
-            if site and id_only:
-                site = site.id
+        # was it an ID-only request? if so return the site ID only!
+        if site and id_only:
+            site = site.id
 
+    return site
+
+def lookup(site, host, recursion, id_only):
+    try:
+        site = Site.objects.get(domain=host)
+    except Site.DoesNotExist:
+        # if the Site couldn't be found, strip the port off if it
+        # exists and try again
+        if host.find(":") > -1:
+            try:
+                # strip the port
+                tmp = host.split(":")[0]
+                site = Site.objects.get(domain=tmp)
+            except Site.DoesNotExist:
+                pass
+
+    # if the Site still hasn't been found, add or remove the 'www.'
+    # from the host and try with that.
+    if not recursion and not site and getattr(settings, 'MULTIHOST_AUTO_WWW', True):
+        if host.startswith('www.'):
+            site = by_host(host=host[4:], id_only=id_only, recursion=True)
+        else:
+            site = by_host(host = 'www.%s' % host, id_only=id_only, recursion=True)
     return site
