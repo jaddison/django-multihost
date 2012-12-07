@@ -77,7 +77,7 @@ Django-Multihost is maintained by `James Addison <mailto:code@scottisheyes.com>`
 License
 -------
 
-Django-Multihost is Copyright (c) 2010, James Addison. It is free software, and may be redistributed under the terms specified in the LICENSE file. 
+Django-Multihost is Copyright (c) 2010-2012, James Addison. It is free software, and may be redistributed under the terms specified in the LICENSE file. 
 
 
 Questions, Comments, Concerns:
